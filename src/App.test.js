@@ -1,13 +1,19 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import App from './App';
 
-test('ボタンの色が正しいか？', () => {
+test('ボタンの初期値が正しいか？', () => {
 	render(<App />);
 	const button = screen.getByRole('button', { name: 'Change to blue' });
 	expect(button).toHaveStyle({ backgroundColor: 'red' });
 });
 
-test('クリックしたら青に変わるか？', () => {
+test('チェックボックスの初期値が正しいか？', () => {
+	render(<App />);
+	const checkbox = screen.getByRole('checkbox');
+	expect(checkbox).not.toBeChecked();
+});
+
+test('ボタンをクリックしたら青に変わるか？', () => {
 	render(<App />);
 	const button = screen.getByRole('button', { name: 'Change to blue' });
 	fireEvent.click(button);
@@ -16,7 +22,7 @@ test('クリックしたら青に変わるか？', () => {
 	expect(button.textContent).toBe('Change to red');
 });
 
-test('2回クリックしたら赤に戻るか？', () => {
+test('ボタンを2回クリックしたら赤に戻るか？', () => {
 	render(<App />);
 	const button = screen.getByRole('button', { name: 'Change to blue' });
 	fireEvent.click(button);
@@ -24,4 +30,53 @@ test('2回クリックしたら赤に戻るか？', () => {
 
 	expect(button).toHaveStyle({ backgroundColor: 'red' });
 	expect(button.textContent).toBe('Change to blue');
+});
+
+test('ボタン赤の状態でチェックボックスをクリックするとボタンがdisabledになるか？', () => {
+	render(<App />);
+	const checkbox = screen.getByRole('checkbox', { name: 'Disable button' });
+	const button = screen.getByRole('button', { name: 'Change to blue' });
+
+	// チェックボックスをクリックする。
+	fireEvent.click(checkbox);
+	expect(button).not.toBeEnabled();
+	expect(button).toHaveStyle({ backgroundColor: 'grey' });
+
+	// 再度チェックボックスをクリックする。
+	fireEvent.click(checkbox);
+	expect(button).toBeEnabled();
+	expect(button).toHaveStyle({ backgroundColor: 'red' });
+});
+
+test('ボタン青の状態でチェックボックスをクリックするとボタンがdisabledになるか？', () => {
+	render(<App />);
+	const checkbox = screen.getByRole('checkbox', { name: 'Disable button' });
+	const button = screen.getByRole('button', { name: 'Change to blue' });
+
+	// ボタンをクリックして青にする。
+	fireEvent.click(button);
+
+	// チェックボックスをクリックする。
+	fireEvent.click(checkbox);
+	expect(button).not.toBeEnabled();
+	expect(button).toHaveStyle({ backgroundColor: 'grey' });
+
+	// 再度チェックボックスをクリックする。
+	fireEvent.click(checkbox);
+	expect(button).toBeEnabled();
+	expect(button).toHaveStyle({ backgroundColor: 'blue' });
+});
+
+test('disabledの状態でボタンクリックしても色が変わらないか？', () => {
+	render(<App />);
+	const checkbox = screen.getByRole('checkbox', { name: 'Disable button' });
+	const button = screen.getByRole('button', { name: 'Change to blue' });
+
+	// チェックボックスをクリックして、ボタンをグレーにする。
+	fireEvent.click(checkbox);
+	expect(button).toHaveStyle({ backgroundColor: 'grey' });
+
+	// ボタンをクリックしても、色はグレーのまま。
+	fireEvent.click(button);
+	expect(button).toHaveStyle({ backgroundColor: 'grey' });
 });
